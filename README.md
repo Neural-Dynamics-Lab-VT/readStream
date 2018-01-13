@@ -13,6 +13,6 @@ Initialize button before preceding.
 
 ## TODO
 - [ ] Realtime signal plotting
-- [ ] Convert signals to into Raw python-mne format.
+- [X] Convert signals to into Raw python-mne format.
 - [ ] Automatic metadata reception.
 - [ ] UI and code clean up
