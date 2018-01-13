@@ -8,15 +8,17 @@ from pylsl import StreamInlet, resolve_stream
 from PyQt5.QtGui import QIcon, QFont
 
 
-class Example(QMainWindow):
+class ReadStream(QMainWindow):
 
     def __init__(self):
         super().__init__()
-
         self.initUI()
-        self.flag_event = threading.Event()
+        self.flag_event = threading.Event()  # Used to check a running thread
 
     def initUI(self):
+        """
+        Initializes the app UI and display it.
+        """
         startbtn = QPushButton("Start Recroding", self)
         startbtn.move(30, 50)
 
@@ -42,23 +44,31 @@ class Example(QMainWindow):
         self.setWindowIcon(QIcon("./Static/Images/icon.jpg"))
         self.show()
 
-        #init Variables
-        self.recordFlag = True
-
     def start_recording(self):
+        """
+        Event handler when the Start recording button is pressed.
+        Launches a thread and starts receiving data from a EEG stream.
+        """
         self.flag_event.set()
         self.statusBar().showMessage('Starting the Recording')
         startThread = threading.Thread(name='record', target=self.record)
-        # startThread.setDaemon(True)
         startThread.start()
         self.statusBar().showMessage('Recording')
 
     def stop_recording(self):
+        """
+        Event handler when Stop recording button is pressed.
+        Currently does nothing but that.
+        """
         self.flag_event.clear()
         self.statusBar().showMessage('Recording Stopped')
         print('boo ya')
 
     def init_recording(self):
+        """
+        Housekeeping before starting the EEG stream.
+        :return:
+        """
         self.statusBar().showMessage('Initialising...')
         self.streams = resolve_stream('type', 'EEG')
         self.inlet = StreamInlet(self.streams[0])
@@ -66,9 +76,16 @@ class Example(QMainWindow):
         self.sampleObj = []
 
     def record(self):
+        """
+        Start receiving and converting data to python-mne format and save it.
+        """
+
+        # TODO: Make the Metadata transmission automatic
         n_channels = 32
         sampling_rate = 500
         channel_types = 'eeg'
+
+        # Info class required by mne
         info = mne.create_info(ch_names=n_channels, sfreq=sampling_rate, ch_types=channel_types)
 
         while self.flag_event.is_set():
@@ -79,6 +96,7 @@ class Example(QMainWindow):
             custom_raw = mne.io.RawArray(self.data, info)
             custom_raw.save("./Data/sample_raw.fif", overwrite=True)
 
+            # TODO: Finish real time data plotting
             # print(self.data.shape)
             # if (self.data.shape[1]+1) % sampling_rate == 0:
             #     # custom_raw = mne.io.RawArray(self.data, info)
@@ -90,32 +108,8 @@ class Example(QMainWindow):
             #     plt.pause(0.05)
             #     plt.show()
 
-    # def animate(self, i):
-    #     # xar = self.timeObj
-    #     yar = self.data.T[0, :]
-    #     ax1.clear()
-    #     ax1.plot(yar)
-
-    def plot_signals(self):
-        # TODO: Change the info attribute later. Find a way to automatically set it
-        # n_channels = 32
-        # sampling_rate = 500
-        # channel_types = 'eeg'
-        # info = mne.create_info(ch_names=n_channels, sfreq=sampling_rate, ch_types=channel_types)
-        #
-        # print("Plot!!!")
-        #
-        # while self.flag_event.is_set():
-        #     data = np.array(self.sampleObj).reshape((n_channels, -1))
-        #     custom_raw = mne.io.RawArray(data, info)
-        #     custom_raw.plot()
-
-        # Currently showing saved data
-        raw = mne.io.read_raw_fif("./Data/sample_raw.fif")
-        raw.plot()
-
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    ex = Example()
+    rS = ReadStream()
     sys.exit(app.exec_())
