@@ -93,8 +93,9 @@ class ReadStream(QMainWindow):
             self.timeObj.append(timestamp)
             self.sampleObj.append(sample)
             self.data = np.array(self.sampleObj).reshape((n_channels, -1)) * 1e-6
-            custom_raw = mne.io.RawArray(self.data, info)
-            custom_raw.save("./Data/sample_raw.fif", overwrite=True)
+            if (self.data.shape[1]+1) % sampling_rate == 0:
+                custom_raw = mne.io.RawArray(self.data, info)
+                custom_raw.save("./Data/sample_raw.fif", overwrite=True)
 
             # TODO: Finish real time data plotting
             # print(self.data.shape)
