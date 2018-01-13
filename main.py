@@ -88,6 +88,8 @@ class ReadStream(QMainWindow):
         # Info class required by mne
         info = mne.create_info(ch_names=n_channels, sfreq=sampling_rate, ch_types=channel_types)
 
+        # TODO: Dynamically reduce array size
+
         while self.flag_event.is_set():
             sample, timestamp = self.inlet.pull_sample()
             self.timeObj.append(timestamp)
@@ -108,6 +110,13 @@ class ReadStream(QMainWindow):
             #     ani = animation.FuncAnimation(fig, self.animate, interval=10)
             #     plt.pause(0.05)
             #     plt.show()
+
+    def plot_signals(self):
+        # TODO: Change the info attribute later. Find a way to automatically set it
+
+        # Currently showing saved data
+        raw = mne.io.read_raw_fif("./Data/sample_raw.fif")
+        raw.plot()
 
 
 if __name__ == '__main__':
