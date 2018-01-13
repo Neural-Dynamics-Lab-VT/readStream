@@ -15,3 +15,4 @@ Initialize button before preceding.
 - [ ] Realtime signal plotting
 - [ ] Convert signals to into Raw python-mne format.
 - [ ] Automatic metadata reception.
+- [ ] UI and code clean up
